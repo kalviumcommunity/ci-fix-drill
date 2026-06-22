@@ -1,5 +1,5 @@
-// The function is correct — it applies the discount percentage correctly
-function calculateDiscount(price, discountPercent) {
-  return price - (price * discountPercent / 100);
+function calculateDiscount(amount, percent) {
+  return amount - (amount * percent) / 100;
 }
+
 module.exports = { calculateDiscount };

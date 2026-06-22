@@ -1,4 +1,8 @@
 function formatCurrency(amount, currency) {
-  return { amount: parseFloat(amount.toFixed(2)), currency: currency };
+  return {
+    amount: Math.round(amount * 100) / 100,
+    currency
+  };
 }
+
 module.exports = { formatCurrency };
