@@ -14,13 +14,28 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
+      # FIX (BUG 1): Changed from `npm install` to `npm ci`.
+      # `npm ci` performs a clean, reproducible install strictly from package-lock.json.
+      # `npm install` can silently update the lockfile, leading to non-deterministic builds.
       - name: Install dependencies
-        run: npm install   # BUG 1 — should be npm ci
+        run: npm ci
 
   test:
     runs-on: ubuntu-latest
-    # BUG 2 — missing needs: install, so test runs in parallel with install
-    # BUG 3 — no checkout or npm ci step, so node_modules is empty on this fresh machine
+    # FIX (BUG 2): Added `needs: install` so the test job only starts after the
+    # install job succeeds. Without this, both jobs run in parallel on separate
+    # fresh VMs — the test runner starts before any dependencies are installed.
+    needs: install
     steps:
+      # FIX (BUG 3): Added checkout, setup-node, and npm ci here.
+      # Each GitHub Actions job runs on a completely fresh virtual machine.
+      # Node modules from the install job are NOT shared. Every job that needs
+      # the source code or node_modules must check out and install independently.
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
       - name: Run tests
         run: npm test

@@ -5,5 +5,8 @@ test('applies no discount when percent is 0', () => {
 });
 
 test('applies 10 percent discount correctly', () => {
-  expect(calculateDiscount(100, 10)).toBe(100); // WRONG — should be 90, not 100
+  // FIX: The function correctly computes 100 - (100 * 10 / 100) = 90.
+  // The original assertion expected 100, which is the un-discounted price — that is wrong.
+  // We fix the test expectation, not the function, because the function logic is correct.
+  expect(calculateDiscount(100, 10)).toBe(90);
 });
