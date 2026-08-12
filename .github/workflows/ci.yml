@@ -15,12 +15,19 @@ jobs:
         with:
           node-version: '18'
       - name: Install dependencies
-        run: npm install   # BUG 1 — should be npm ci
+        # Switched to npm ci to ensure clean, reproducible installs from package-lock.json
+        run: npm ci
 
   test:
+    needs: install
     runs-on: ubuntu-latest
-    # BUG 2 — missing needs: install, so test runs in parallel with install
-    # BUG 3 — no checkout or npm ci step, so node_modules is empty on this fresh machine
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        # Dependencies must be installed on this fresh runner before running tests
+        run: npm ci
       - name: Run tests
         run: npm test
