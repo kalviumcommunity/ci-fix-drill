@@ -5,5 +5,6 @@ test('applies no discount when percent is 0', () => {
 });
 
 test('applies 10 percent discount correctly', () => {
-  expect(calculateDiscount(100, 10)).toBe(100); // WRONG — should be 90, not 100
+  // The assertion incorrectly expected 100 after a 10% discount on 100. The correct mathematically applied discount makes it 90.
+  expect(calculateDiscount(100, 10)).toBe(90);
 });
