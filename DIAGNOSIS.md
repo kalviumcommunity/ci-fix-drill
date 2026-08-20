@@ -12,15 +12,17 @@ The `test` job runs on a separate fresh GitHub Actions runner but does not check
 
 **Failure type:** Type 3 — Workflow configuration failure.
 
-## Failure 2 — Non-Reproducible Dependency Installation
+## Failure 2 — Dependency Lockfile Out of Sync
 
 **Step:** Install dependencies
 
-**Evidence:**
-`Run npm install`
+**Error:**
+`npm error code EUSAGE`
+
+`npm error Missing: lodash@4.18.1 from lock file`
 
 **Cause:**
-The workflow uses `npm install` instead of `npm ci`. npm install can resolve dependency version ranges differently over time, making CI installations less reproducible. The workflow should use the committed package-lock.json through `npm ci`.
+The workflow was changed to use `npm ci`, which requires package.json and package-lock.json to be synchronized. The package.json requires lodash@4.18.1, but that version was missing from the lockfile. Therefore npm ci stopped instead of installing an inconsistent dependency tree.
 
 **Failure type:** Type 2 — Dependency configuration failure.
 
