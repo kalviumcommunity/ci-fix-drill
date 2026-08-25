@@ -2,12 +2,12 @@ name: CI Pipeline
 
 on:
   push:
-    branches: ['*']
+    branches: ['**']
   pull_request:
     branches: [main]
 
 jobs:
-  install:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,12 +15,6 @@ jobs:
         with:
           node-version: '18'
       - name: Install dependencies
-        run: npm install   # BUG 1 — should be npm ci
-
-  test:
-    runs-on: ubuntu-latest
-    # BUG 2 — missing needs: install, so test runs in parallel with install
-    # BUG 3 — no checkout or npm ci step, so node_modules is empty on this fresh machine
-    steps:
+        run: npm ci
       - name: Run tests
         run: npm test
