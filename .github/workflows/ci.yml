@@ -15,12 +15,20 @@ jobs:
         with:
           node-version: '18'
       - name: Install dependencies
-        run: npm install   # BUG 1 — should be npm ci
+        # FIXED: Use npm ci for reliable, reproducible dependency resolution in CI environments
+        run: npm ci
 
   test:
     runs-on: ubuntu-latest
-    # BUG 2 — missing needs: install, so test runs in parallel with install
-    # BUG 3 — no checkout or npm ci step, so node_modules is empty on this fresh machine
+    # FIXED: Added needs block so the test job waits for install to finish successfully
+    needs: install
     steps:
+      # FIXED: Added checkout, setup-node, and install steps so tests have code and dependencies
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
       - name: Run tests
         run: npm test

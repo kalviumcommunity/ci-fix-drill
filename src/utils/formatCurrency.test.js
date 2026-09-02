@@ -1,6 +1,6 @@
 const { formatCurrency } = require('./formatCurrency');
 
 test('formats currency correctly', () => {
-  // WRONG — toBe fails on objects, should use toEqual
-  expect(formatCurrency(10.005, 'USD')).toBe({ amount: 10.01, currency: 'USD' });
+  // FIXED: Changed toBe to toEqual because toBe check object reference, while toEqual does deep value evaluation
+  expect(formatCurrency(10.005, 'USD')).toEqual({ amount: 10.01, currency: 'USD' });
 });
