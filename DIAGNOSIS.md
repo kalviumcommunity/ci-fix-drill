@@ -1,0 +1,89 @@
+# CI Pipeline Diagnosis
+
+## Failure 1: Dependency Installation
+
+### Step
+
+Install dependencies
+
+### Exact error
+
+```text
+npm ERR! code EUSAGE
+npm ERR! `npm ci` can only install packages when your package.json and package-lock.json are in sync.
+```
+
+### Cause
+
+The workflow used `npm install`, which can resolve a different dependency tree on a clean CI runner and can update the lockfile. The repository therefore did not enforce a reproducible install. The lockfile was also missing the `node_modules/jest` package metadata required by the current `package.json`, so `npm ci` could not validate the dependency tree until the lockfile was regenerated.
+
+### Fix
+
+Regenerated `package-lock.json` from `package.json` and changed the workflow install command from `npm install` to `npm ci`.
+
+## Failure 2: Discount Assertion
+
+### Step
+
+Run tests
+
+### Exact error
+
+```text
+Expected: 100
+Received: 90
+```
+
+The failing assertion was in `src/payments/calculateDiscount.test.js` for `applies 10 percent discount correctly`.
+
+### Cause
+
+The test expected the original price, even though `calculateDiscount(100, 10)` correctly applies a 10 percent discount and returns `90`. The production function was correct; the test expectation was wrong.
+
+### Fix
+
+Changed the expected value from `100` to `90` and added a comment above the assertion explaining the correction.
+
+## Failure 3: Object Matcher
+
+### Step
+
+Run tests
+
+### Exact error
+
+```text
+Expected: {"amount": 10.01, "currency": "USD"}
+Received: serializes to the same string
+```
+
+The failing assertion was in `src/utils/formatCurrency.test.js`.
+
+### Cause
+
+The test used Jest's `toBe` matcher for two separate object instances. `toBe` checks reference identity, so it fails even when the objects contain the same values.
+
+### Fix
+
+Changed `toBe` to `toEqual`, which performs a deep value comparison, and added a comment above the assertion.
+
+## Failure 4: Workflow Sequencing
+
+### Step
+
+Run tests
+
+### Exact error
+
+```text
+Error: Process completed with exit code 1.
+npm ERR! Missing script: "test"
+```
+
+### Cause
+
+The `test` job had no `needs: install` declaration, so it could start in parallel with the install job. It also ran on a fresh runner without checkout or dependency installation, so the repository and `node_modules` were unavailable.
+
+### Fix
+
+Added `needs: install`, checkout, Node setup, and a second `npm ci` step to the test job. Jobs do not share filesystems, so the test job must prepare its own runner even after the install job succeeds.
