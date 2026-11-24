@@ -6,7 +6,7 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.18.1"
   },
   "devDependencies": {
     "jest": "^29.0.0",
